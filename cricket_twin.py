@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from google import genai
 
 # ==========================================
-# 🔑 CRITICAL: GLOBAL VARIABLES SETUP FIRST
+# 🔑 GLOBAL STABLE INITIALIZATION
 # ==========================================
 st.set_page_config(page_title="⚔️ CHAMPIONSHIP COMMAND CORE", layout="wide", initial_sidebar_state="expanded")
 
@@ -20,7 +20,7 @@ if "api_ready" not in globals():
     global api_ready
     api_ready = False
 
-# Safely read from secrets vault or fallback sidebar
+# Read from secrets vault or sidebar fallback input
 secret_key = st.secrets.get("GEMINI_API_KEY", None)
 
 if not secret_key:
