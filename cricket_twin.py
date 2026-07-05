@@ -7,11 +7,12 @@ import json
 import matplotlib.pyplot as plt
 from google import genai
 
+# ==========================================
+# 🔑 CRITICAL: GLOBAL VARIABLES SETUP FIRST
+# ==========================================
 st.set_page_config(page_title="⚔️ CHAMPIONSHIP COMMAND CORE", layout="wide", initial_sidebar_state="expanded")
 
-# ==========================================
-# 🔑 GLOBAL STABLE INITIALIZATION
-# ==========================================
+# Initialize these immediately at the top so tabs NEVER throw NameErrors
 if "client" not in globals():
     global client
     client = None
@@ -20,7 +21,7 @@ if "api_ready" not in globals():
     global api_ready
     api_ready = False
 
-# Safely reads from secrets vault or sidebar fallback input
+# Safely read from secrets vault or fallback sidebar
 secret_key = st.secrets.get("GEMINI_API_KEY", None)
 
 if not secret_key:
@@ -47,7 +48,7 @@ def query_local_ollama(prompt, model_name="gemini-2.5-flash"):
         return response.text
     except Exception as e:
         error_str = str(e)
-        # Catching the exact 429 quota/rate limit error you hit to show backup data instead of a crash!
+        # Catching the quota rate limit error smoothly to provide fallback text instead of a crash box
         if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
             return """💡 **[PRO BACKUP ENGINE ACTIVE - AI QUOTA EXHAUSTED]**
 
@@ -74,7 +75,7 @@ st.markdown("""
     .metric-box, .simulator-card {
         background: #1e293b; padding: 22px; border-radius: 10px;
         border: 1px solid rgba(59, 130, 246, 0.2); border-left: 5px solid #3b82f6;
-        box-shadow: 0px 6px 18px rgba(0,0,0,0.4); text-align: center; margin-bottom: 15px;
+        box-shadow: 0px 6px 18 rgba(0,0,0,0.4); text-align: center; margin-bottom: 15px;
     }
     .label-title { color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
     .value-display { color: #ffffff; font-size: 32px; font-weight: 800; margin-top: 4px; font-family: monospace; }
@@ -90,7 +91,7 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# YOUR ORIGINAL 4 TABS LAYOUT KEPT EXACTLY THE SAME
+# THE 4 ORIGINAL TABS
 tab1, tab2, tab3, tab4 = st.tabs([
     "🎯 TACTICAL DECK: Opponent Trap Modeler",
     "📊 LIVE SIMULATOR: Dot-Pressure Sandbox",
@@ -144,10 +145,6 @@ with tab1:
         grass_pct = st.slider("Grass Coverage (%)", 0, 100, 25)
         hardness_pct = st.slider("Surface Hardness (%)", 0, 100, 91)
         moisture_pct = st.slider("Moisture Content (%)", 0, 100, 24)
-        
-        swing_idx = int((grass_pct * 0.7) + (moisture_pct * 0.5))
-        spin_idx = int((100 - grass_pct) * 0.6 + (hardness_pct * 0.2))
-        exp_score = 176 + int((hardness_pct - grass_pct) * 0.3)
 
     with col_scout_out:
         st.subheader("📋 Pro Analyst Intelligence Streams")
@@ -185,7 +182,7 @@ with tab1:
                 st.info(query_local_ollama(scout_prompt))
 
 # ==========================================
-# MODULE 2: LIVE SIMULATOR + DIGITAL TWIN + SCENARIOS
+# MODULE 2: LIVE SIMULATOR + DIGITAL TWIN
 # ==========================================
 with tab2:
     st.markdown("### 🎯 Game State Simulation & Scenario Sandbox")
@@ -297,7 +294,7 @@ with tab2:
             st.info(query_local_ollama("Provide strategic tactical recommendations for the active digital twin sandbox matrix state."))
 
 # ==========================================
-# MODULE 3: BIOMECHANICAL SUITE + AI COACH
+# MODULE 3: BIOMECHANICAL SUITE
 # ==========================================
 with tab3:
     st.markdown("### 🎥 Biomechanical Video Kinematic Vector Deck")
@@ -320,7 +317,7 @@ with tab3:
     with col_v2:
         st.subheader("🔬 4-Quadrant Kinematic Audit Logs")
         if st.button("🔍 Execute Comparative Biomechanics Assessment"):
-            if not globals().get('api_ready') or not globals().get('client'):
+            if not api_ready or not client:
                 st.error("Provide functional Google API key via Secrets or Sidebar to activate visual processing node.")
             elif bytes_p is None or bytes_c is None:
                 st.warning("Both baseline anchor and active drift frames must be uploaded.")
