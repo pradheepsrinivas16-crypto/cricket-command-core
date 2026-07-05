@@ -38,6 +38,9 @@ def query_local_ollama(prompt, model_name="gemini-2.5-flash"):
         response = client.models.generate_content(model=model_name, contents=prompt)
         return response.text
     except Exception as e:
+        # Check if it's a rate limit error
+        if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+            return "⏳ **API Speed Limit Reached (Rate Limit 429):** You've exceeded the 20 requests-per-minute free tier limit. Please wait roughly 30–60 seconds before clicking the simulation engine again!"
         return f"⚠️ Cloud Generation Fault: {str(e)}"
 
 # Franchise Level Custom Theme
