@@ -37,9 +37,11 @@ if api_key:
         api_ready = False
 
 # ==========================================
-# 📡 CLEAN CLOUD INTELLIGENCE ROUTER
+# 📡 CACHED INTELLIGENCE ROUTER (Prevents 429 Errors)
 # ==========================================
-def query_local_ollama(prompt, model_name="gemini-2.5-flash"):
+@st.cache_data(show_spinner=False, ttl=600)
+def cached_api_call(prompt, model_name="gemini-2.5-flash"):
+    """Saves AI responses locally so interacting with sliders won't re-trigger Google's quota limits."""
     if not api_ready or not client:
         return "⚠️ Cloud GenAI node unconfigured. Please check your Gemini API Key configuration."
     try:
@@ -51,6 +53,9 @@ def query_local_ollama(prompt, model_name="gemini-2.5-flash"):
             return "⚠️ **[Google API Speed Limit Reached]** You clicked items too quickly! Please wait 30 seconds for the free quota to reset, then click the button again."
         else:
             return f"⚠️ Cloud Generation Fault: {error_str}"
+
+def query_local_ollama(prompt, model_name="gemini-2.5-flash"):
+    return cached_api_call(prompt, model_name)
 
 # Franchise Level Custom Theme
 st.markdown("""
