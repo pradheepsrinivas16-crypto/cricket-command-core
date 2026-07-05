@@ -12,7 +12,6 @@ from google import genai
 # ==========================================
 st.set_page_config(page_title="⚔️ CHAMPIONSHIP COMMAND CORE", layout="wide", initial_sidebar_state="expanded")
 
-# Initialize these immediately at the top so tabs NEVER throw NameErrors
 if "client" not in globals():
     global client
     client = None
@@ -38,7 +37,7 @@ if api_key:
         api_ready = False
 
 # ==========================================
-# 📡 GLOBAL CLOUD INTELLIGENCE ROUTER + FALLBACK
+# 📡 CLEAN CLOUD INTELLIGENCE ROUTER
 # ==========================================
 def query_local_ollama(prompt, model_name="gemini-2.5-flash"):
     if not api_ready or not client:
@@ -48,18 +47,8 @@ def query_local_ollama(prompt, model_name="gemini-2.5-flash"):
         return response.text
     except Exception as e:
         error_str = str(e)
-        # Catching the quota rate limit error smoothly to provide fallback text instead of a crash box
         if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
-            return """💡 **[PRO BACKUP ENGINE ACTIVE - AI QUOTA EXHAUSTED]**
-
-### 1. THE FIELD-SETTING TRAP
-Place a deep square leg exactly on the boundary rope and pull the mid-wicket fielder 15 yards back into a catching split-arc. This directly suffocates the batsman's high-leverage scoring channels and forces an unstable aerial cross-bat clearance attempt.
-
-### 2. LINE AND LENGTH ASSIGNMENT
-Execute a continuous heavy-ball strategy focusing directly on a fifth-stump trajectory, dropping back-of-length between 6 to 8 meters. Avoid over-pitching entirely into the driving arc to maximize natural variable surface deviations.
-
-### 3. PSYCHOLOGICAL VECTOR
-Maintain maximum field compression and string together defensive dot sequences. Data profiles indicate that forcing 3+ consecutive dots triggers a high-risk shot selection cycle from the target profile."""
+            return "⚠️ **[Google API Speed Limit Reached]** You clicked items too quickly! Please wait 30 seconds for the free quota to reset, then click the button again."
         else:
             return f"⚠️ Cloud Generation Fault: {error_str}"
 
@@ -75,7 +64,7 @@ st.markdown("""
     .metric-box, .simulator-card {
         background: #1e293b; padding: 22px; border-radius: 10px;
         border: 1px solid rgba(59, 130, 246, 0.2); border-left: 5px solid #3b82f6;
-        box-shadow: 0px 6px 18 rgba(0,0,0,0.4); text-align: center; margin-bottom: 15px;
+        box-shadow: 0px 6px 18px rgba(0,0,0,0.4); text-align: center; margin-bottom: 15px;
     }
     .label-title { color: #94a3b8; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
     .value-display { color: #ffffff; font-size: 32px; font-weight: 800; margin-top: 4px; font-family: monospace; }
