@@ -12,7 +12,17 @@ st.set_page_config(page_title="⚔️ CHAMPIONSHIP COMMAND CORE", layout="wide",
 # ==========================================
 # 🔑 CREDENTIAL CONFIGURATION (CLOUD SECURE)
 # ==========================================
-secret_key = st.secrets.get("GEMINI_API_KEY", None)
+# ==========================================
+# 🔑 CREDENTIAL CONFIGURATION (SAFE BYPASS)
+# ==========================================
+secret_key = None
+
+try:
+    # Attempt to read safely from local secrets if it exists
+    secret_key = st.secrets.get("GEMINI_API_KEY", None)
+except Exception:
+    # If no secrets file exists at all, catch the error and skip
+    pass
 
 if not secret_key:
     api_key = st.sidebar.text_input("Enter Gemini API Key", type="password")
@@ -38,11 +48,17 @@ def query_local_ollama(prompt, model_name="gemini-2.5-flash"):
         response = client.models.generate_content(model=model_name, contents=prompt)
         return response.text
     except Exception as e:
-        # Convert exception to string to scan for the rate limit identifiers
         err_msg = str(e)
-        if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg or "Quota exceeded" in err_msg:
-            return "⏳ **API Rate Limit (429):** You are clicking too quickly for the free tier! Please sit tight for 30 seconds, then try again."
-        return f"⚠️ Cloud Generation Fault: {err_msg}"
+        
+        # Catch Google Server Overload (503)
+        if "503" in err_msg or "UNAVAILABLE" in err_msg:
+            return "☁️ **Google Server High Demand (503):** Google's free-tier servers are temporarily overloaded right now. Click the button again in 10-15 seconds to retry the request!"
+            
+        # Catch Rate Limits (429)
+        if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg:
+            return "⏳ **API Rate Limit (429):** Request threshold reached. Please wait 30 seconds before executing another tactical assessment sequence."
+            
+        return f"⚠️ System Core Warning: {err_msg}"
 
 # Franchise Level Custom Theme
 st.markdown("""
@@ -275,6 +291,9 @@ with tab2:
 # ==========================================
 # MODULE 3: BIOMECHANICAL SUITE
 # ==========================================
+## ==========================================
+# MODULE 3: BIOMECHANICAL SUITE
+# ==========================================
 with tab3:
     st.markdown("### 🎥 Biomechanical Video Kinematic Vector Deck")
     st.write("---")
@@ -292,8 +311,9 @@ with tab3:
         rgb_c, bytes_c = process_vision_frame(v_pres, "PRESENT_DRIFT")
         
         dv1, dv2 = st.columns(2)
-        if rgb_p is not None: dv1.image(rgb_p, caption="Historical Control Frame", use_column_width=True)
-        if rgb_c is not None: dv2.image(rgb_c, caption="Active Match State Frame", use_column_width=True)
+        # Fixed: Using width="stretch" to remove the yellow deprecation warnings completely
+        if rgb_p is not None: dv1.image(rgb_p, caption="Historical Control Frame", width="stretch")
+        if rgb_c is not None: dv2.image(rgb_c, caption="Active Match State Frame", width="stretch")
 
     with col_v2:
         st.subheader("🔬 4-Quadrant Kinematic Audit Logs")
@@ -310,28 +330,30 @@ with tab3:
                         c_part = types.Part.from_bytes(data=bytes_c, mime_type='image/jpeg')
                         
                         vision_prompt = f"""
-                        Act as an elite National Team Performance Director and Biomechanical Technical Coach.
-                        Analyze these two frames for discipline: {discipline_type}. Image 1 is the PAST baseline anchor; Image 2 is the PRESENT active drift.
-                        Decompile the visual changes and return a strict, professional analysis using these exact headers:
+                        Act as an elite National Team Performance Director and Biomechanical Technical Coach specializing in cricket.
+                        Perform a rigorous comparative analysis for this discipline: {discipline_type}. 
+                        Image 1 shows the player's PAST optimal stance/mechanics. Image 2 shows their PRESENT active match state.
                         
-                        ### 📈 PAST PROFILE MECHANICS
-                        * **Core Structural Strength**: (Specify exactly what was stable, e.g., head position, foot stride, or shoulder loading alignment)
-                        * **Controlled Vulnerability Boundary**: (What hidden trait was masked by high efficiency)
+                        Provide a technical breakdown formatted under these exact headers:
                         
-                        ### 📉 PRESENT PERFORMANCE DRIFT
-                        * **Identified Technical Failure Mode**: (Explicitly name the breakdown, e.g., dropped wrists, unbraced front leg, falling shoulder line)
-                        * **Emergent Structural Weakness**: (How this geometric deviation prevents clean execution and triggers dismissal/leakage maps)
+                        ### 📈 PAST STANCE BREAKDOWN
+                        * **Mechanical Positioning**: (Analyze their base alignment, head position, and weight distribution)
+                        * **Core Advantages**: (What made this stance highly efficient, powerful, or secure against specific deliveries?)
+                        * **Hidden Disadvantages/Risks**: (What minor vulnerabilities were naturally present or masked by high fitness levels?)
                         
-                        ### 🛠️ PRESCRIPTIVE REPAIR DIRECTIVE
-                        * **Biomechanical Correction Protocol**: (Step-by-step physical adjustment commands to eradicate the mistake immediately)
-                        * **Drill Simulation Prescription**: (Specify 2 world-class professional practice cage drills to lock the correction down)
+                        ### 📉 PRESENT STANCE BREAKDOWN
+                        * **Mechanical Drift & Structural Changes**: (What changed? Highlight specific joint alignment issues, dropped hands, falling shoulders, or poor footwork)
+                        * **Loss of Technical Advantage**: (How does this new position hurt their power generation or defensive coverage?)
+                        * **Compounded Disadvantages**: (What clear technical flaws are now active, and how will top-tier bowlers exploit this right now?)
+                        
+                        ### 🛠️ PHYSICAL REPAIR BLUEPRINT
+                        * **Kinematic Alignment Adjustments**: (Exact step-by-step physical cues to return the player back to their past optimal structure)
+                        * **Elite Practice Cage Drills**: (Provide 2 highly practical training drills to muscle-memory the correction)
                         """
                         res = client.models.generate_content(model='gemini-2.5-flash', contents=[vision_prompt, p_part, c_part])
                         st.markdown(res.text)
                     except Exception as e:
-                        st.error(f"Cloud Engine Fault: {e}")
-
-# ==========================================
+                        st.error(f"Cloud Engine Fault: {e}") 
 # MODULE 4: ATHLETE BASE & RECOVERY MATRIX
 # ==========================================
 with tab4:
