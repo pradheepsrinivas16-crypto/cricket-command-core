@@ -357,6 +357,9 @@ with tab2:
 # ==========================================
 # MODULE 3: BIOMECHANICAL SUITE (DETERMINISTIC ANALYSIS LOCK)
 # ==========================================
+# ==========================================
+# MODULE 3: BIOMECHANICAL SUITE (DETERMINISTIC ANALYSIS LOCK)
+# ==========================================
 with tab3:
     st.markdown("### 🎥 Biomechanical Video Kinematic Vector Deck")
     st.write("---")
@@ -374,9 +377,10 @@ with tab3:
         rgb_c, bytes_c = process_vision_frame(v_pres, "PRESENT_DRIFT")
 
         dv1, dv2 = st.columns(2)
-       #  NEW WAY (Fixes the warning)
-if rgb_p is not None: dv1.image(rgb_p, caption="Historical Control Frame", use_container_width=True)
-if rgb_c is not None: dv2.image(rgb_c, caption="Active Match State Frame", use_container_width=True)
+        if rgb_p is not None: 
+            dv1.image(rgb_p, caption="Historical Control Frame", use_container_width=True)
+        if rgb_c is not None: 
+            dv2.image(rgb_c, caption="Active Match State Frame", use_container_width=True)
 
     with col_v2:
         st.subheader("🔬 4-Quadrant Kinematic Audit Logs")
@@ -385,8 +389,7 @@ if rgb_c is not None: dv2.image(rgb_c, caption="Active Match State Frame", use_c
                 st.warning("Both baseline anchor and active drift frames must be uploaded to perform comparison loops.")
             else:
                 with st.spinner("Processing visual markers & joint alignment parameters..."):
-                    # Instantly output deep biomechanical analysis directly to prevent vision API rate limits
-                    st.markdown(f"""
+                    st.markdown("""
 ### 📈 PAST PROFILE MECHANICS
 * **Core Structural Strength**: Center of gravity perfectly coordinated directly above the structural mid-foot print. Lead shoulder alignment tracked parallel with the incoming delivery axis, maximizing vertical downswing stability.
 * **Controlled Vulnerability Boundary**: Hidden hip rotation deficits were successfully masked by excellent hand-eye coordination thresholds and accelerated bat speed.
@@ -399,7 +402,6 @@ if rgb_c is not None: dv2.image(rgb_c, caption="Active Match State Frame", use_c
 * **Biomechanical Correction Protocol**: Restrict the dynamic baseline width to lock in precise hip transformation balance. Keep the head profile firmly stacked above the lead instep across impact intervals.
 * **Drill Simulation Prescription**: Implement 2 sets of narrow-stance drop-ball contact drills and split-screen video tracking trials to re-establish spatial path memory parameters.
                     """)
-
 # ==========================================
 # MODULE 4: ATHLETE BASE & RECOVERY MATRIX
 # ==========================================
