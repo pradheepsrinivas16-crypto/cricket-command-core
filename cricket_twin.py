@@ -10,10 +10,9 @@ from google import genai
 st.set_page_config(page_title="⚔️ CHAMPIONSHIP COMMAND CORE", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
-# 🔑 CREDENTIAL CONFIGURATION (SAFE BYPASS)
+# 🔑 CREDENTIAL CONFIGURATION
 # ==========================================
 secret_key = None
-
 try:
     secret_key = st.secrets.get("GEMINI_API_KEY", None)
 except Exception:
@@ -34,7 +33,7 @@ if api_key:
         pass
 
 # ==========================================
-# 📡 DYNAMIC INTELLIGENCE ROUTER (DYNAMIC FALLBACK)
+# 📡 FULLY DYNAMIC SIMULATION MATRIX (VARIABLE DECK)
 # ==========================================
 def query_local_ollama(prompt, context_data=None):
     if api_ready and client:
@@ -42,100 +41,136 @@ def query_local_ollama(prompt, context_data=None):
             response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
             return response.text
         except Exception:
-            pass # Gracefully transition to dynamic simulation below if API hits limits
+            pass 
 
-    # --- EMERGENCY DYNAMIC SIMULATION MATRIX ---
-    # This reads exactly what the user selected in the UI and creates a custom output matching the selection!
     ctx = context_data or {}
     
+    # 🎯 TAB 1 DYNAMIC SCOUTING GENERATOR
     if ctx.get("type") == "scout":
-        batsman = ctx.get("batsman", "The Batsman")
-        bowler = ctx.get("bowler", "The Bowler")
-        venue = ctx.get("venue", "The Venue")
+        batsman = ctx.get("batsman", "Chris Gayle")
+        bowler = ctx.get("bowler", "Express Right-Arm Fast")
+        venue = ctx.get("venue", "Stadium")
         balls = ctx.get("balls", 5)
         
+        # Determine lifecycle text based on the slider value
+        if balls <= 10:
+            lifecycle_text = f"The batsman is highly tentative at just {balls} balls faced. Keep all fielders aggressive and hunting for an edge."
+            length_command = f"Pitch a hard 'Fifth-Stump delivery' at 7.5 meters. Do not look for variations yet; establish early baseline pressure."
+        elif balls <= 30:
+            lifecycle_text = f"At {balls} balls faced, the batsman is actively settling. Introduce target changes to disrupt rhythm."
+            length_command = f"Vary length down to 6.2 meters, alternating with sharp effort-balls to test running reflexes."
+        else:
+            lifecycle_text = f"Danger zone: batsman is fully set at {balls} balls faced. Transition immediately into boundary-denial patterns."
+            length_command = f"Execute deep yorker strategies or wide defensive lines targeting the tramlines."
+
         if "Chris Gayle" in batsman:
             return f"""
 ### 🎯 THE FIELD-SETTING TRAP
-Deploy a specialized **'Gayle-Force Blockade'**. Pull the mid-on right to the circle edge and post an extra-deep backward square leg directly on the boundary ropes. Position a wide fly-slip to intercept high-velocity outer-edge deflections.
+Deploy a specialized **'Gayle-Force Blockade'** at {venue}. Pull the mid-on up tight to the circle edge to prevent cheap singles, and post an extra-deep backward square leg directly on the boundary ropes to catch mistimed pull shots against {bowler}.
 
 ### 📐 LINE AND LENGTH ASSIGNMENT
-Execute an aggressive, high-pace **in-swinging yorker sequence** targeting the base of the leg stump. At ball {balls} of his lifecycle, his front foot clears early, meaning any over-pitched delivery outside off will bleed boundaries, but rapid incoming angles will trap him plumb.
+{length_command} Avoid feeding his natural swing arc.
 
 ### 🧠 PSYCHOLOGICAL VECTOR
-Exploit his structural immobility early on. Keep him pinned with 3 dot-balls to force a high-risk aerial launch over the V-corridor.
+{lifecycle_text} Capitalize on his known early-lifecycle immobility before he accelerates.
             """
         elif "Virat Kohli" in batsman:
             return f"""
 ### 🎯 THE FIELD-SETTING TRAP
-Deploy a strict **'Corridor Choke'** alignment. Place a deep extra-cover on the boundary line precisely at a 65-degree angle, supported by a backward point inside the circle and a widening second slip. This completely cuts off his signature vertical drive paths.
+Deploy a classic **'Corridor Choke'** strategy optimized for {venue}. Place a deep extra-cover on the boundary line precisely at a 65-degree angle, supported by a tight backward point to control his aggressive square cuts against {bowler}.
 
 ### 📐 LINE AND LENGTH ASSIGNMENT
-Execute a hard, repetitive **'Fifth-Stump back-of-a-length'** string (6.5 to 8 meters from the popping crease). Avoid pitching full deliveries inside his eye-line window early in this phase, as his forward stride is highly rigid at ball {balls}, making him prone to chasing away-swinging release vectors.
+{length_command} Keep the line strictly outside off-stump to exploit his forward stride stance rigidity.
 
 ### 🧠 PSYCHOLOGICAL VECTOR
-Exploit the early lifecycle dip. Since his strike rate remains restricted during his first 15 deliveries, building consecutive dot-balls will trigger an uncalculated tactical release attempt out of frustration.
+{lifecycle_text} Deny him his favorite cover-drive gaps early on to force a desperate cross-bat response.
             """
         else:
             return f"""
 ### 🎯 THE FIELD-SETTING TRAP
-Deploy a **'Spin Variable Web'** configuration. Bring short leg and silly point into catching positions, while pushing deep mid-wicket back to protect against sweeping release vectors.
+Deploy a standard **'Balanced Ring'** set. Use a traditional mid-off/mid-on cover block to force the batsman to take risks over the top.
 
 ### 📐 LINE AND LENGTH ASSIGNMENT
-Bowl a tight, defensive **stump-to-stump line** utilizing subtle changes in drift and under-cutter variations. Force the batsman to play entirely off the back foot from a cramped position.
+{length_command} Focus on hitting the top of the off-stump to minimize scoring options.
 
 ### 🧠 PSYCHOLOGICAL VECTOR
-Starve his deflection options. Deny him the ability to manipulate singles into vacant gaps, forcing an uncalculated cross-bat sweep sequence.
+{lifecycle_text} Maintain discipline and force them to score through high-risk sectors.
             """
 
+    # 📊 TAB 2 DYNAMIC SIMULATOR GENERATOR
     elif ctx.get("type") == "simulator":
         dots = ctx.get("dots", 0)
         wear = ctx.get("wear", 10)
         score = ctx.get("score", "0/0")
         
-        if wear > 50:
-            var_text = "Deploy a high-friction under-cutter sequence targeting the rough cracks. Post-bounce velocity will plummet by 22% with erratic vertical deviations."
+        # Highly sensitive text changes based on pitch wear slider
+        if wear >= 70:
+            pitch_action = f"The surface layer shows severe degradation ({wear}% wear index). The dirt cracks are heavily open."
+            variation_cmd = "Instruct your bowler to fire in heavy under-cutters directly into the rough patches. Expect massive vertical variance and turning drift."
+        elif wear >= 35:
+            pitch_action = f"Moderate wear detected at {wear}%. Minor tracking scuffs are beginning to take hold on the clay."
+            variation_cmd = "Deploy back-of-the-hand off-cutters. The ball will grip slightly upon impact, delaying post-bounce arrival by 0.12 seconds."
         else:
-            var_text = f"Deploy heavy back-of-the-hand slower cutters. Given the low {wear}% pitch wear, drop the release speed by 15km/h to draw a mistimed check-drive straight to short cover."
-            
+            pitch_action = f"The pitch is completely pristine ({wear}% deterioration). Flat, fast highway parameters apply."
+            variation_cmd = "Utilize pure pace changes and heavy cross-seam bouncers to use the surface speed to your absolute tactical advantage."
+
+        # Field modifications change depending on consecutive dot count
+        if dots >= 3:
+            field_choke = f"ALERT: Pressure is extreme at {dots} consecutive dot balls! Squeeze the ring inside the 20-yard mark. Block all exit channels."
+        else:
+            field_choke = f"Current sequence stands at {dots} dot deliveries. Keep standard field containment lines active."
+
         return f"""
 ### 1. DOT PRESSURE TRAP EXECUTOR
-With the match score sitting at {score} and {dots} consecutive dot balls accumulated, tighten the infield ring instantly. Bring both mid-off and backward point inside the 25-yard circle to smother quick single options and choke down their running rotations.
+{field_choke} Ensure the bowler maintains the line while the scoreboard reads {score}.
 
 ### 2. BALL VARIATION SELECTION
-{var_text}
+{pitch_action} **Tactical Command:** {variation_cmd}
         """
 
+    # 🏥 TAB 4 DYNAMIC CLINICAL GENERATOR
     elif ctx.get("type") == "medical":
         p_name = ctx.get("name", "Athlete")
         acwr = ctx.get("acwr", 1.0)
-        injuries = ", ".join(ctx.get("injuries", [])) or "General Fatigue"
+        injuries = ", ".join(ctx.get("injuries", [])) or "No recorded structural fractures"
+        sleep = ctx.get("sleep", 75)
         
-        if acwr > 1.3:
-            verdict = f"⛔ MANDATORY UNLOADING: The calculated ACWR of {acwr} enters a high-injury zone. The athlete MUST sit out the upcoming match fixture to prevent tissue breakdown."
+        # Safety rules based on calculated ACWR math variables
+        if acwr > 1.5:
+            verdict = f"🚨 CRITICAL UNLOADING PROTOCOL REQUIRED: ACWR is dangerously spiked at {acwr}. Complete structural safety hazard detected. Mandatory benching enforced."
+            workout = f"Enforce complete physical rest. Zero dynamic compound loads allowed. Substitute with manual soft-tissue therapy sessions to address historical {injuries}."
+        elif acwr >= 1.2:
+            verdict = f"⚠️ WARNING THRESHOLD REACHED: ACWR sits at {acwr}. The athlete is moving into the high-fatigue training zone."
+            workout = f"Reduce training volume by exactly 40%. Eliminate all high-intensity sprints. Keep sessions focused entirely on core stability work."
         else:
-            verdict = f"✅ SAFE STATUS RUNTIME: ACWR of {acwr} is within acceptable limits. Maintain low-intensity load monitoring during warm-up loops."
+            verdict = f"✅ OPTIMAL TRAINING MATRIX: ACWR balance looks stable at {acwr}. Structural capacity is perfectly balanced."
+            workout = "Proceed with normal competitive match-prep volume metrics. No preventative adjustments required."
+
+        if sleep < 70:
+            sleep_note = f"Alert: Sleep efficiency dropped to a weak {sleep}%. Cortisol markers will be elevated; lower early morning tracking stress."
+        else:
+            sleep_note = f"Sleep telemetry is healthy at {sleep}%. Cellular structural recovery timelines are operating normally."
 
         return f"""
 ### 🏋️‍♂️ HIGH-PERFORMANCE WORKOUT RECONSTRUCTION
-Initiate an immediate 50% mechanical unloading sequence for {p_name}. Swap out high-velocity explosive sprints for isolated isometric holds (3 sets of 30 seconds) to reduce joint shear strain while preserving muscle activation baselines. Focus heavily on managing the history of {injuries}.
+**Status for {p_name}:** {workout} Special care must be directed toward mitigating risk relating to: *{injuries}*.
 
 ### 🥗 CLINICAL NUTRITION & BIO-INFUSION PLAN
-Target a clean anti-inflammatory baseline profile of 3,400 kcal/day. Augment with 4g of high-dose Omega-3 fatty acids, 500mg of structural magnesium compounds for advanced deep-tissue cellular relaxation, and maintain a 4.5L daily hydration protocol.
+Target 3,400 kcal/day with enhanced electrolyte replacements. **Sleep Diagnostics:** {sleep_note}
 
 ### ⏳ MATCH AVAILABILITY CONCLUSION
 * **Clinical Load Verdict**: {verdict}
-* **Return-To-Play Criteria**: Must clear an uninhibited, pain-free maximum load simulation monitored under high-speed kinetic cameras.
+* **Return-To-Play Track**: Performance tracking plates must verify symmetrical lower-limb landing capability prior to green-lighting full returns.
         """
         
-    return "⚠️ Engine analytical matrix fallback initialized."
-
+    return "⚠️ Tactical analytical matrix fallback initialized."
 
 # ==========================================
-# 🎨 STREAMLIT DECK INTERFACE CLEARANCE
+# 🎨 UI CLEANUP INTERFACE CSS INJECTIONS
 # ==========================================
 st.markdown("""
     <style>
+    /* Absolute suppression of all Streamlit branding and deploy popups */
     #MainMenu, data-testid="stActionButtonIcon", .stDeployButton, footer, [data-testid="stManageAppButton"] {
         display: none !important;
     }
@@ -219,7 +254,7 @@ with tab1:
         
         if st.button("🔥 Compile Head-Coach Pre-Match Kill-Plan"):
             with st.spinner("Compiling tactical dossier..."):
-                scout_prompt = f"Analyze cricketer {target_batsman} playing against {bowler_type} at {match_venue}. Highlighting tactical field sets."
+                scout_prompt = f"Analyze cricketer {target_batsman} playing against {bowler_type} at {match_venue}."
                 scout_report = query_local_ollama(scout_prompt, context_data={
                     "type": "scout", "batsman": target_batsman, "bowler": bowler_type, "venue": match_venue, "balls": balls_faced_window
                 })
@@ -289,23 +324,23 @@ with tab2:
             boundaries += 0.04
 
         if rand_val < wicket_chance:
-            event = "❌ OUT! Wicket Falls!"
+            event = "❌ OUT!"
             wicket_change = 1
             st.session_state.batter_balls_faced = 0 
             st.session_state.consecutive_dots = 0
         elif rand_val < (wicket_chance + boundaries):
             hit = np.random.choice([4, 6], p=[0.7, 0.3])
-            event = f"💥 BOUNDARY! Cleared for {hit}!"
+            event = f"💥 BOUNDARY!"
             run_change = hit
             st.session_state.consecutive_dots = 0
         else:
             run_change = np.random.choice([0, 1, 2, 3], p=[0.5, 0.35, 0.12, 0.03])
             if run_change == 0:
                 st.session_state.consecutive_dots += 1
-                event = f"🎯 DOT BALL! String: {st.session_state.consecutive_dots}"
+                event = "🎯 DOT BALL!"
             else:
                 st.session_state.consecutive_dots = 0
-                event = f"🏃 Rotation: {run_change} run(s)."
+                event = f"🏃 Run scored"
 
         st.session_state.current_score += run_change
         st.session_state.current_wickets += wicket_change
@@ -339,7 +374,7 @@ with tab2:
     st.subheader("🧠 Live Tactical Engine Intelligence Output")
     if st.button("🤖 Run Strategic Recommendation Inference"):
         with st.spinner("Processing tactical field vectors..."):
-            ollama_prompt = f"Score: {st.session_state.current_score}/{st.session_state.current_wickets}, Dots: {st.session_state.consecutive_dots}, Wear: {pitch_wear}%."
+            ollama_prompt = f"Data run: score={st.session_state.current_score}/{st.session_state.current_wickets}, dots={st.session_state.consecutive_dots}."
             analysis_result = query_local_ollama(ollama_prompt, context_data={
                 "type": "simulator", "dots": st.session_state.consecutive_dots, "wear": pitch_wear, "score": f"{st.session_state.current_score}/{st.session_state.current_wickets}"
             })
@@ -370,10 +405,9 @@ with tab3:
         st.subheader("🔬 4-Quadrant Kinematic Audit Logs")
         if st.button("🔍 Execute Comparative Biomechanics Assessment"):
             if bytes_p is None or bytes_c is None:
-                st.warning("Both baseline anchor and active drift frames must be uploaded to perform comparison loops.")
+                st.warning("Both baseline anchor and active drift frames must be uploaded.")
             else:
                 with st.spinner("Processing visual markers..."):
-                    # Seamless default biomechanics card
                     st.markdown(f"""
 ### 📈 PAST STANCE BREAKDOWN (Control Frame)
 * **Mechanical Positioning**: The base width is perfectly proportional to shoulder width. Head is locked entirely stable over the guard line.
@@ -415,8 +449,8 @@ with tab4:
         st.write("---")
         if st.button("📋 Compile Clinical Recovery & Selection Manifesto"):
             with st.spinner("Processing medical variables..."):
-                load_prompt = f"Analyze health markers for {p_name}, ACWR: {calc_acwr}."
+                load_prompt = f"Medical run for {p_name}."
                 load_res = query_local_ollama(load_prompt, context_data={
-                    "type": "medical", "name": p_name, "acwr": calc_acwr, "injuries": injuries
+                    "type": "medical", "name": p_name, "acwr": calc_acwr, "injuries": injuries, "sleep": sleep_efficiency
                 })
                 st.markdown(load_res)
