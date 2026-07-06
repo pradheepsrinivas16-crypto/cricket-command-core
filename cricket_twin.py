@@ -374,8 +374,9 @@ with tab3:
         rgb_c, bytes_c = process_vision_frame(v_pres, "PRESENT_DRIFT")
 
         dv1, dv2 = st.columns(2)
-        if rgb_p is not None: dv1.image(rgb_p, caption="Historical Control Frame", use_column_width=True)
-        if rgb_c is not None: dv2.image(rgb_c, caption="Active Match State Frame", use_column_width=True)
+       #  NEW WAY (Fixes the warning)
+if rgb_p is not None: dv1.image(rgb_p, caption="Historical Control Frame", use_container_width=True)
+if rgb_c is not None: dv2.image(rgb_c, caption="Active Match State Frame", use_container_width=True)
 
     with col_v2:
         st.subheader("🔬 4-Quadrant Kinematic Audit Logs")
