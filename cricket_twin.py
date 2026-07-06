@@ -5,131 +5,106 @@ import cv2
 import requests
 import json
 import matplotlib.pyplot as plt
-from google import genai
+import os
 
+# Set configuration safely without broken rcParams attributes
 st.set_page_config(page_title="⚔️ CHAMPIONSHIP COMMAND CORE", layout="wide", initial_sidebar_state="expanded")
 
 # ==========================================
-# 🔑 CREDENTIAL CONFIGURATION (CLOUD SECURE)
+# 📡 DYNAMIC LOCAL AI ENGINE (OLLAMA ROUTER)
 # ==========================================
-secret_key = None
-try:
-    secret_key = st.secrets.get("GEMINI_API_KEY", None)
-except Exception:
-    pass
-
-if not secret_key:
-    api_key = st.sidebar.text_input("Enter Gemini API Key", type="password")
-else:
-    api_key = secret_key
-
-client = None
-api_ready = False
-if api_key:
-    try:
-        client = genai.Client(api_key=api_key)
-        api_ready = True
-    except Exception:
-        pass
-
-# ==========================================
-# 📡 GLOBAL CLOUD INTELLIGENCE ROUTER + LOCAL FALLBACK MATRIX
-# ==========================================
-def query_local_ollama(prompt, context_data=None, model_name="gemini-2.5-flash"):
-    # Attempt to route via live Cloud API first
-    if api_ready and client:
-        try:
-            response = client.models.generate_content(model=model_name, contents=prompt)
-            return response.text
-        except Exception as e:
-            # If rate limited or network drops, silently fall back to the local matrix below
-            pass
-
-    # Ensure context data dictionary exists
+def query_local_ollama(prompt, context_data=None):
+    """
+    Queries your local Ollama instance running llama3. 
+    Constructs a highly descriptive engineering and strategic prompt using the live slider data.
+    """
+    url = "http://localhost:11434/api/generate"
     ctx = context_data or {}
+    mode = ctx.get("type", "general")
     
-    # 🎯 TARGETED ATTACK STRATEGY DRILLDOWN (TAB 1 FALLBACK)
-    if ctx.get("type") == "scout":
-        batsman = ctx.get("batsman", "Chris Gayle")
-        bowler = ctx.get("bowler", "Express Right-Arm Fast")
-        venue = ctx.get("venue", "Ground")
-        balls = ctx.get("balls", 5)
+    # 🎯 Tab 1 Context Builder
+    if mode == "scout":
+        system_role = "You are a world-class professional cricket head coach and elite technical analyst."
+        engineered_prompt = f"""
+        {system_role}
+        Analyze the following live match matchup data and compile an aggressive, detailed tactical strategy:
+        - Target Batsman: {ctx.get('batsman')}
+        - Deployed Bowler: {ctx.get('bowler')}
+        - Venue Context: {ctx.get('venue')}
+        - Balls Faced in Lifecycle: {ctx.get('balls')}
         
-        if "Chris Gayle" in batsman:
-            return f"""
-### 1. THE FIELD-SETTING TRAP
-Deploy a targeted inner ring containment blockade optimized for the boundaries at {venue}. Position an ultra-fine short mid-wicket inside the 30-yard circle to intercept low-elevation mistimed whips, alongside a deep backward square leg anchored directly on the boundary rope. Place a wide fly-slip to trap late, high-velocity exterior edges forced by the pace of the {bowler}.
-
-### 2. LINE AND LENGTH ASSIGNMENT
-Given the early lifecycle phase ({balls} balls faced), instruct the bowler to target a hyper-repressed fuller length hitting the bottom string of the pads (6.8–7.2 meters from the crease). Avoid short-of-length deliveries that allow back-foot weight transitions into his favored square leg arc zone.
-
-### 3. PSYCHOLOGICAL VECTOR
-Exploit the early innings performance baseline where the target's scoring efficiency operates lower. Squeezing early dot-pressure triggers an immediate inflation in risk tolerance, forcing an uncalculated aerial launch against the brand new moving ball.
-            """
-        else: # Virat Kohli or default profiles
-            return f"""
-### 1. THE FIELD-SETTING TRAP
-Establish a premium 'Corridor Choke' field array at {venue}. Move an athletic extra-cover deep to the boundary line at a 65-degree angle to protect against high-velocity lofted drives. Back this up with a highly mobile backward point within the circle and an aggressive second slip to catch dynamic off-stump edge deflections.
-
-### 2. LINE AND LENGTH ASSIGNMENT
-Execute a continuous, high-discipline string targeting the fifth-stump channel, keeping delivery metrics at a hard back-of-a-length tier (7.5–8.2 meters). Force horizontal adjustments inside the off-stump corridor while withholding room to extend the arms.
-
-### 3. PSYCHOLOGICAL VECTOR
-At this critical milestone ({balls} balls faced), the batsman actively seeks low-risk single options to settle his scoring pace. Restricting clear infield scoring gaps breaks his rotational flow, generating technical impatience and creating a window for a defensive edge.
-            """
-
-    # 📊 LIVE GAME STATE ANALYSIS (TAB 2 FALLBACK)
-    elif ctx.get("type") == "simulator":
-        dots = ctx.get("dots", 0)
-        wear = ctx.get("wear", 10)
-        score = ctx.get("score", "0/0")
-        bowler = ctx.get("bowler", "Opponent Bowler")
-        
-        if dots >= 3:
-            trap_text = f"CRITICAL PRESSURE INDEX DETECTED: The batting order is currently under heavy duress following {dots} consecutive dot-balls at a live score of {score}. Bring the entire 30-yard inner-ring infield forward by 4 meters to cut off the single, forcing the batsman to look for high-risk lofted boundary options over the top."
-        else:
-            trap_text = f"Maintain standard outer-ring containment limits. Keep the mid-off and mid-on fieldsmen deep to check standard straight drives while maintaining dot-ball pressure baseline across the off-side tracking zones."
-
-        if wear >= 40:
-            variation_text = f"With the surface tracking at a high {wear}% deterioration index, the primary pitch landing zones contain visible micro-fissures. Instruct the bowler to deliver cross-seam off-cutters directly into the rough, utilizing erratic post-bounce friction variations to defeat the clean downswing of the bat blade."
-        else:
-            variation_text = f"The pitch remains stable under a low {wear}% wear profile. Rely cleanly on deceptive changes of pace—specifically deep back-of-the-hand slow balls—to exploit any forward weight commitments from the batsman."
-
-        return f"""
-### 1. DOT PRESSURE TRAP EXECUTOR
-{trap_text}
-
-### 2. BALL VARIATION SELECTION
-**Active Selection Directive:** {variation_text} Ensure variation delivery lines match the target concession zone vectors.
+        Provide:
+        1. THE FIELD-SETTING TRAP (Explicit positions tailored to the player and venue boundaries)
+        2. LINE AND LENGTH ASSIGNMENT (Target delivery coordinates in meters)
+        3. PSYCHOLOGICAL VECTOR (How to exploit their current lifecycle progression)
         """
-
-    # 🏥 CLINICAL WORKLOAD ASSIGNMENT (TAB 4 FALLBACK)
-    elif ctx.get("type") == "medical":
-        p_name = ctx.get("name", "Jasprit Bumrah")
-        acwr = ctx.get("acwr", 1.0)
-        injuries = ", ".join(ctx.get("injuries", [])) or "No recorded macro-lesions"
-        sleep = ctx.get("sleep", 75)
         
-        if acwr > 1.5:
-            verdict = f"🚨 CLINICAL CRITICAL ALERT: ACWR is tracking at an elite risk level of {acwr}. High probability of immediate soft-tissue structural degradation. Mandatory competitive load shedding is recommended."
-            workout = f"Enforce immediate technical unloading. Zero high-velocity athletic output. Replace with localized isometric holds, active spinal decompression, and targeted core stabilizers to safeguard against historic vulnerabilities regarding: *{injuries}*."
-        else:
-            verdict = f"✅ STABLE CONDITIONING baseline: ACWR tracks healthily at {acwr}, sitting squarely inside the optimal functional training zone."
-            workout = "Continue normal performance preparation loops. Maintain current sport-specific workloads while reviewing post-session lower-limb force distributions to confirm muscular symmetry."
-
-        return f"""
-### 🏋️‍♂️ HIGH-PERFORMANCE WORKOUT RECONSTRUCTION
-**Physiological State Profile for {p_name}:** {workout}
-
-### 🥗 CLINICAL NUTRITION & BIO-INFUSION PLAN
-Prescribe an explicit daily anti-inflammatory macro intake profile totaling 3,400 kcal, integrated with 4.5g of pure marine omega-3 fatty acids for tissue repair. **Polysomnographic Efficiency:** Tracking at {sleep}%, indicating adequate growth hormone cycles for muscle regeneration.
-
-### ⏳ MATCH AVAILABILITY CONCLUSION
-* **Clinical Load Status Assessment**: {verdict}
-* **Playing-11 Re-entry Criteria**: Athlete must register a minimum of 95% symmetrical force absorption on double-blind landing force-plates and complete an uninhibited high-intensity bowling workload simulation without biomechanical compensation patterns.
+    # 📊 Tab 2 Context Builder
+    elif mode == "simulator":
+        system_role = "You are a real-time cricket data scientist and live tactical strategist."
+        engineered_prompt = f"""
+        {system_role}
+        Analyze this live match state snapshot to optimize our field placements and bowler variations:
+        - Live Score State: {ctx.get('score')}
+        - Active Dot Ball Pressure String: {ctx.get('dots')} consecutive dots
+        - Pitch Surface Condition: {ctx.get('pitch_type')}
+        - Pitch Deterioration Index: {ctx.get('wear')}%
+        - Deployed Bowler Type: {ctx.get('bowler')}
+        
+        Provide:
+        1. DOT PRESSURE TRAP EXECUTOR (How to squeeze or adjust the infield based on the dot string)
+        2. BALL VARIATION SELECTION (Specific tactical deliveries optimized for the pitch wear factor)
         """
+        
+    # 🎥 Tab 3 Context Builder
+    elif mode == "biomechanics":
+        system_role = "You are an elite sports science biomechanist specializing in professional cricket kinematics."
+        engineered_prompt = f"""
+        {system_role}
+        Perform a comprehensive kinematic audit comparing historical base control vectors to active match state drift.
+        Discipline Under Assessment: {ctx.get('discipline')}
+        
+        Provide:
+        1. PAST PROFILE MECHANICS (Optimal form control baseline details)
+        2. PRESENT PERFORMANCE DRIFT (Technical breakdown of the failure mode)
+        3. PRESCRIPTIVE REPAIR DIRECTIVE (Specific biomechanical correction protocols and training drills)
+        """
+        
+    # 🏥 Tab 4 Context Builder
+    elif mode == "medical":
+        system_role = "You are a chief high-performance athletic director and sports medical specialist."
+        engineered_prompt = f"""
+        {system_role}
+        Calculate an elite physiological medical intervention using these active loading variables:
+        - Athlete Name: {ctx.get('name')}
+        - Acute-to-Chronic Workload Ratio (ACWR): {ctx.get('acwr')}
+        - Pathological Medical History: {ctx.get('injuries')}
+        - Polysomnographic Sleep Efficiency: {ctx.get('sleep')}%
+        
+        Provide:
+        1. HIGH-PERFORMANCE WORKOUT RECONSTRUCTION (Specific loading or unloading protocols based on the ACWR)
+        2. CLINICAL NUTRITION & BIO-INFUSION PLAN (Inflammatory macro-intake recommendation)
+        3. MATCH AVAILABILITY CONCLUSION (Clear playing-11 re-entry clearance or shutdown directive)
+        """
+    else:
+        engineered_prompt = prompt
 
-    return "⚠️ Tactical Command Core local analytic engine initialized successfully."
+    payload = {
+        "model": "llama3",
+        "prompt": engineered_prompt.strip(),
+        "stream": False
+    }
+    
+    try:
+        response = requests.post(url, json=payload, timeout=30)
+        if response.status_code == 200:
+            return response.json()['response']
+        else:
+            return f"❌ Local Ollama Error: Server status code {response.status_code}"
+    except Exception:
+        return """
+        ⚠️ **Ollama Connection Error!** Please ensure your local Ollama app is running in your terminal background via: `ollama run llama3`
+        """
 
 # ==========================================
 # 🎨 BRAND SYSTEM UI DESIGN OVERLAYS
@@ -197,7 +172,7 @@ with tab1:
         target_batsman = st.selectbox("Select Opposition Batsman Profile", ["Chris Gayle (LHB - Power Opening Anchor)", "Virat Kohli (RHB - Cover-Drive Dominant)", "Graeme Swann (SLA - Deflection Bias Athlete)"])
         bowler_type = st.selectbox("Our Tactical Attack Option", ["Express Right-Arm Fast-Bowler", "Left-Arm Quick Seam", "Mystery Wrist-Spinner"])
         match_venue = st.text_input("Match Location / Ground Analytics", "M. Chinnaswamy Stadium, Bengaluru (Small Boundaries / Flat Deck)")
-        balls_faced_window = st.slider("Batsman Lifecycle Progression (Balls Faced)", 1, 60, 5)
+        balls_faced_window = st.slider("Batsman Lifecycle Progression (Balls Faced)", 1, 60, 15)
 
         if "Chris Gayle" in target_batsman:
             leakage = "Covers & Square Leg Arc"
@@ -218,9 +193,8 @@ with tab1:
         st.markdown(f"**⚡ Current Technical Vulnerability Vector:** `{vulnerability}`")
 
         if st.button("🔥 Compile Head-Coach Pre-Match Kill-Plan"):
-            with st.spinner("Compiling tactical dossier..."):
-                scout_prompt = f"Analyze Profile: Batsman: {target_batsman}, Bowler: {bowler_type}, Venue: {match_venue}, Lifecycle Stage: {balls_faced_window} faced."
-                scout_report = query_local_ollama(scout_prompt, context_data={
+            with st.spinner("Compiling tactical dossier via local AI..."):
+                scout_report = query_local_ollama("", context_data={
                     "type": "scout", "batsman": target_batsman, "bowler": bowler_type, "venue": match_venue, "balls": balls_faced_window
                 })
                 st.info(scout_report)
@@ -347,18 +321,14 @@ with tab2:
         if st.session_state.balls_simulated == 0:
             st.warning("Initialize state variables by simulating at least one delivery stream.")
         else:
-            with st.spinner("Processing tactical field vectors via cloud engine..."):
-                ollama_prompt = f"Context: Score {st.session_state.current_score}/{st.session_state.current_wickets}. Active dot string: {st.session_state.consecutive_dots} consecutive dots. Surface Deck: {pitch_type}. Bowling: {bowler_profile}."
-                analysis_result = query_local_ollama(ollama_prompt, context_data={
-                    "type": "simulator", "dots": st.session_state.consecutive_dots, "wear": pitch_wear, "score": f"{st.session_state.current_score}/{st.session_state.current_wickets}", "bowler": bowler_profile
+            with st.spinner("Processing local tactical parameters..."):
+                analysis_result = query_local_ollama("", context_data={
+                    "type": "simulator", "dots": st.session_state.consecutive_dots, "wear": pitch_wear, "score": f"{st.session_state.current_score}/{st.session_state.current_wickets}", "bowler": bowler_profile, "pitch_type": pitch_type
                 })
                 st.info(analysis_result)
 
 # ==========================================
-# MODULE 3: BIOMECHANICAL SUITE (DETERMINISTIC ANALYSIS LOCK)
-# ==========================================
-# ==========================================
-# MODULE 3: BIOMECHANICAL SUITE (DETERMINISTIC ANALYSIS LOCK)
+# MODULE 3: BIOMECHANICAL SUITE
 # ==========================================
 with tab3:
     st.markdown("### 🎥 Biomechanical Video Kinematic Vector Deck")
@@ -388,20 +358,12 @@ with tab3:
             if bytes_p is None or bytes_c is None:
                 st.warning("Both baseline anchor and active drift frames must be uploaded to perform comparison loops.")
             else:
-                with st.spinner("Processing visual markers & joint alignment parameters..."):
-                    st.markdown("""
-### 📈 PAST PROFILE MECHANICS
-* **Core Structural Strength**: Center of gravity perfectly coordinated directly above the structural mid-foot print. Lead shoulder alignment tracked parallel with the incoming delivery axis, maximizing vertical downswing stability.
-* **Controlled Vulnerability Boundary**: Hidden hip rotation deficits were successfully masked by excellent hand-eye coordination thresholds and accelerated bat speed.
-                    
-### 📉 PRESENT PERFORMANCE DRIFT
-* **Identified Technical Failure Mode**: The stance base profile has shifted out of standard limits by expanding 4.5 inches too wide. This drops the upper crown line and results in a dropped rear wrist coordinate during backlift initialization.
-* **Emergent Structural Weakness**: The excessively wide posture hampers forward stride progression by 15%, causing late contact frames and forcing cross-bat errors through the off-side corridor.
-                    
-### 🛠️ PRESCRIPTIVE REPAIR DIRECTIVE
-* **Biomechanical Correction Protocol**: Restrict the dynamic baseline width to lock in precise hip transformation balance. Keep the head profile firmly stacked above the lead instep across impact intervals.
-* **Drill Simulation Prescription**: Implement 2 sets of narrow-stance drop-ball contact drills and split-screen video tracking trials to re-establish spatial path memory parameters.
-                    """)
+                with st.spinner("Processing alignment deviations via local AI..."):
+                    bio_report = query_local_ollama("", context_data={
+                        "type": "biomechanics", "discipline": discipline_type
+                    })
+                    st.markdown(bio_report)
+
 # ==========================================
 # MODULE 4: ATHLETE BASE & RECOVERY MATRIX
 # ==========================================
@@ -429,9 +391,8 @@ with tab4:
 
         st.write("---")
         if st.button("📋 Compile Clinical Recovery & Selection Manifesto"):
-            with st.spinner("Processing medical variables and loading scripts..."):
-                load_prompt = f"Player: {p_name}. ACWR: {calc_acwr}. Pathological History: {injuries}. Sleep Efficiency: {sleep_efficiency}%."
-                load_res = query_local_ollama(load_prompt, context_data={
+            with st.spinner("Compiling clinical metrics through local engine..."):
+                load_res = query_local_ollama("", context_data={
                     "type": "medical", "name": p_name, "acwr": calc_acwr, "injuries": injuries, "sleep": sleep_efficiency
                 })
                 st.markdown(load_res)
